@@ -1,17 +1,26 @@
 #!/usr/bin/env sh
 
+
 # set url for github download
 Site=https://raw.githubusercontent.com
 Owner=zplat
-Repository=Arch-Install/master
+Repository=/Arch-Install/master
 Script=Intall.sh
 setup-url=$Site/$Owner/$Repositories/$Script
 
+# capture user input
+# partition names
+echo Which drive is root drive
+read Drive
+
+echo Which drive is boot drive
+read Boot
+
 # Encrypt disk/partition
-sryptsetup --hash=sha512 --cipher=two-fish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/sda5
+sryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive
 
 # open btrfs container 
-cryptsetup --allow-discards --persistent open /dev/sda5 btrfs-system
+cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system
 
 # Format both boot and root partition
 mkfs.vfat -F32 /dev/sdc1
@@ -41,7 +50,7 @@ mkswap /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # mount boot volume
-mount /dev/sdc1  /mnt/boot
+mount /dev/$Boot  /mnt/boot
 
 # installation 
 pacstrap /mnt base base-devel git btrfs-progs vim efibootmgr zsh zsh-completions linux linux-firmware networkmanager
