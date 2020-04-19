@@ -5,7 +5,7 @@
 Site=https://raw.githubusercontent.com
 Owner=zplat
 Repository=/Arch-Install/master
-Script=Intall.sh
+Script=Install-Script.sh
 setup-url=$Site/$Owner/$Repositories/$Script
 
 # capture user input
@@ -53,17 +53,10 @@ swapon /mnt/swap/swapfile
 mount /dev/$Boot  /mnt/boot
 
 # installation 
-pacstrap /mnt base base-devel git btrfs-progs vim efibootmgr zsh zsh-completions linux linux-firmware networkmanager
+pacstrap /mnt base base-devel git btrfs-progs vim efibootmgr zsh zsh-completions linux linux-firmware networkmanager xfsprogs
 
 # generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
 
 # log into chroot
 curl $setup-url > /mnt/shell.sh
-
-
-
-
-
-
-
