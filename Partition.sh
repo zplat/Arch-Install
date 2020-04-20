@@ -4,11 +4,8 @@ echo "List drives available"
 lsblk
 
 # set url for github download
-Site=https://raw.githubusercontent.com
-Owner=zplat
-Repository=Arch-Install/master
-Script=Install-Script.sh
-setup-url=$Site/$Owner/$Repository/$Script
+setup-url=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
+
 
 # capture user input
 # partition names
