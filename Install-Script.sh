@@ -74,8 +74,8 @@ sed -i '/^SigLevel.*$ /n; s/^#Server.*$/Server = http:\/\/repo.archlinux.fr\/$ar
 ##################################################
 # update mkinitcpio.conf
 sed -i 's/^HOOKS.*$/HOOKS=(base systemd autodetect modconf block sd-encrypt btrfs resume filesystems keyboard fsck)/' /etc/mkinitcpio.conf
-#Update mkinitcpio
 
+#Update mkinitcpio
 # Generate the ramdisks using the presets
 mkinitcpio -p linux
 
@@ -90,7 +90,7 @@ if [[ ! -f $DIRECTORY ]]
     mkkdir $DIRECTORY
   fi
  
-echo ="[Trigger]
+echo "[Trigger]
 Type = Package
 Operation = Upgrade
 Target = systemd
