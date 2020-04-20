@@ -4,9 +4,9 @@
 # set url for github download
 Site=https://raw.githubusercontent.com
 Owner=zplat
-Repository=/Arch-Install/master
+Repository=Arch-Install/master
 Script=Install-Script.sh
-setup-url=$Site/$Owner/$Repositories/$Script
+setup-url=$Site/$Owner/$Repository/$Script
 
 # capture user input
 # partition names
@@ -17,7 +17,7 @@ echo Which drive is boot drive
 read Boot
 
 # Encrypt disk/partition
-sryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive
+cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive
 
 # open btrfs container 
 cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system
@@ -29,8 +29,8 @@ mkfs.btrfs -L btrfs /dev/mapper/btrfs-system
 # Create btrfs subvolumes 
 mount /dev/mapper/btrfs-system /mnt
 btrfs  subvolume create /mnt/root
-btrfs  subvolume create /mnt/root
-btrfs  subvolume create /mnt/root
+btrfs  subvolume create /mnt/home
+btrfs  subvolume create /mnt/swap
 
 umount /mnt
 
@@ -53,10 +53,10 @@ swapon /mnt/swap/swapfile
 mount /dev/$Boot  /mnt/boot
 
 # installation 
-pacstrap /mnt base base-devel git btrfs-progs vim efibootmgr zsh zsh-completions linux linux-firmware networkmanager xfsprogs
+pacstrap /mnt base base-devel git btrfs-progs neovim efibootmgr zsh zsh-completions linux linux-firmware networkmanager xfsprogs
 
 # generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
 
 # log into chroot
-curl $setup-url > /mnt/shell.sh
+curl $setup-url > /mnt/shell.sh && arch-chroot /mnt /bin/zsh shell.sh
