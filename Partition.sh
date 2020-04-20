@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+echo "List drives available"
+lsblk
 
 # set url for github download
 Site=https://raw.githubusercontent.com
@@ -17,13 +19,21 @@ echo Which drive is boot drive
 read Boot
 
 # Encrypt disk/partition
-cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive
+alias cmd1='cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
+
+until cmd1; do
+  cmd1
+done
 
 # open btrfs container 
-cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system
+alias cmd2='cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system'
+
+until cmd2; do
+  cmd2
+done
 
 # Format both boot and root partition
-mkfs.vfat -F32 /dev/sdc1
+mkfs.vfat -F32 /dev/$Boot
 mkfs.btrfs -L btrfs /dev/mapper/btrfs-system
 
 # Create btrfs subvolumes 
