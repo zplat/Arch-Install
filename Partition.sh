@@ -1,21 +1,19 @@
 #!/usr/bin/env sh
 
-echo "List drives available"
-lsblk
-
 # set url for github download
 setup-url=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
 
 
 # capture user input
 # partition names
-echo Which drive is root drive
+echo "Which drive is root drive"
 read Drive
 
-echo Which drive is boot drive
+echo "Which drive is boot drive"
 read Boot
 
 # Encrypt disk/partition
+echo "Encrypt disk/partition"
 alias cmd1='cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
 
 until cmd1; do
@@ -23,6 +21,7 @@ until cmd1; do
 done
 
 # open btrfs container 
+echo " Open root btrfs container"
 alias cmd2='cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system'
 
 until cmd2; do
@@ -30,10 +29,12 @@ until cmd2; do
 done
 
 # Format both boot and root partition
+echo "Format both boot and root partition"
 mkfs.vfat -F32 /dev/$Boot
 mkfs.btrfs -L btrfs /dev/mapper/btrfs-system
 
 # Create btrfs subvolumes 
+echo "Creating btrfs subvolumes"
 mount /dev/mapper/btrfs-system /mnt
 btrfs  subvolume create /mnt/root
 btrfs  subvolume create /mnt/home
@@ -47,6 +48,7 @@ mount -o subvol=home,ssd,compress=lzo,discard /dev/mapper/btrfs-system /mnt/home
 mount -o subvol=swap,ssd,discard /dev/mapper/btrfs-system /mnt/swap
 
 # create the swap
+echo "Creating the swap"
 truncate -s 0 /mnt/swap/swapfile
 chattr +C /mnt/swap/swapfile
 
@@ -57,13 +59,20 @@ mkswap /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # mount boot volume
+echo "Mount boot volume"
 mount /dev/$Boot  /mnt/boot
 
 # installation 
-pacstrap /mnt base base-devel git btrfs-progs neovim efibootmgr zsh zsh-completions linux linux-firmware networkmanager xfsprogs
+echo "Install packages"
+pacstrap /mnt base base-devel git btrfs-progs efibootmgr zsh zsh-completions linux linux-firmware networkmanager
 
 # generate fstab
+echo "Update fstab"
 genfstab -U /mnt > /mnt/etc/fstab
 
 # log into chroot
-curl $setup-url > /mnt/shell.sh && arch-chroot /mnt /bin/zsh shell.sh
+echo "Install next script"
+curl $setup-url > /mnt/shell.sh 
+
+echo "Boot into chroot"
+arch-chroot /mnt /bin/zsh
