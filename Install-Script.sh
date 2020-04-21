@@ -10,11 +10,13 @@ echo $Computer-name > /etc/hostname
 
 ##################################################
 # change shell to zsh
+echo "Change shell to zsh"
 chsh -s /bin/zsh
 
 
 ##################################################
-# set timezone and sync clock
+# set timezone and sync clock 
+echo "Set timezone and sync clock"
 ln -sf /usr/share/zoneinfo/Europe/Isle_of_Man /etc/localtime
 
 hwclock --systohc --utc
@@ -23,6 +25,7 @@ timedatectl set-ntp true
 
 ##################################################
 # set locales aed update locales
+echo "Set locales aed update locales"
 echo "de_DE.UTF-8 UTF-8
 en_GB.UTF-8 UTF-8
 en_US.UTF-8 UTF-8
@@ -39,6 +42,7 @@ locale-gen
 
 ##################################################
 # Set default locale
+echo "Set default locale"
 echo "LANG=en_US.UTF-8
 LC_COLLATE=C" > /etc/locale.conf
 
@@ -73,14 +77,17 @@ sed -i '/^SigLevel.*$ /n; s/^#Server.*$/Server = http:\/\/repo.archlinux.fr\/$ar
 
 ##################################################
 # update mkinitcpio.conf
+echo "Update mkinitcpio.conf"
 sed -i 's/^HOOKS.*$/HOOKS=(base systemd autodetect modconf block sd-encrypt btrfs resume filesystems keyboard fsck)/' /etc/mkinitcpio.conf
 
 #Update mkinitcpio
 # Generate the ramdisks using the presets
+echo "Update mkinitcpio"
 mkinitcpio -p linux
 
 ##################################################
 # systemd-boot
+echo "Systemd-boot"
 bootctl --path=/boot install
 
 
@@ -124,6 +131,7 @@ passwd  $User-name
 
 ##################################################
 # install graphics
+echo "Install graphics"
 pacman -S xorg-server xorg-apps xorg-xinit xorg-xrandr 
 pacman -S mesa xf86-video-amdgpu vulkan-radeon lib32-mesa
 pacman -S xorg-twm
@@ -133,7 +141,8 @@ pacman -S xorg-twm
 pacman -S openssh
 
 ##################################################
-# enable ssd and networkmanager on systemctl  
+# enable ssd and networkmanager on systemctl 
+echo "Enable ssd and networkmanager on systemctl"
 systemctl enable NetworkManager.Service
 systemctl enable fstrim.timer
 systemctl enable sshd.service
