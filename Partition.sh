@@ -75,4 +75,4 @@ echo "Install next script"
 curl --url $setupurl > /mnt/shell.sh 
 
 echo "Boot into chroot"
-arch-chroot /mnt /bin/zsh shell1.sh
+arch-chroot /mnt /bin/zsh shell.sh
