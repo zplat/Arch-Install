@@ -118,6 +118,7 @@ sed -i 's/^#\[custom\]/\[archlinuxfr\]/' /etc/pacman.conf
 sed -i '/^\[archlinuxfr\]/ {n; s/^#Sig.*$/SigLevel = Never/}' /etc/pacman.conf
 sed -i '/^SigLevel.*$ /n; s/^#Server.*$/Server = http:\/\/repo.archlinux.fr\/$arch/' /etc/pacman.conf
 
+pacman -Syu
 
 ##################################################
 # update mkinitcpio.conf
@@ -235,9 +236,9 @@ Installing graphics
 ####################
 "
 
-pacman -S xorg-server xorg-apps xorg-xinit xorg-xrandr 
+pacman -S xorg-server xorg-apps xorg-xinit amd-ucode linux-headers
 pacman -S mesa xf86-video-amdgpu vulkan-radeon lib32-mesa
-pacman -S xorg-twm
+pacman -S xorg-twm xterm xorg-xclock
 
 ##################################################
 # install ssh
