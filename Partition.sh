@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # set url for github download
-setup-url=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
+setupurl=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
 
 
 # capture user input
@@ -72,7 +72,7 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 # log into chroot
 echo "Install next script"
-curl $setup-url > /mnt/shell.sh 
+curl --url $setupurl > /mnt/shell.sh 
 
 echo "Boot into chroot"
-arch-chroot /mnt /bin/zsh
+arch-chroot /mnt /bin/zsh shell1.sh
