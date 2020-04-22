@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+echo "$Drive"
+exit 0
 
 ##################################################
 # set hostname
@@ -11,7 +13,7 @@ What is the hostname
 "
 
 read computerName
-echo $computerName > /etc/hostname
+echo "$computerName" > /etc/hostname
 
 
 ##################################################
@@ -87,7 +89,7 @@ Set hosts file
 
 echo "127.0.0.1 localhost
 ::1 localhost
-127.0.1.1 $computerName.localdomain $computerName" >> /etc/hosts
+127.0.1.1 $(computerName).localdomain $computerName" >> /etc/hosts
 
 
 ##################################################
