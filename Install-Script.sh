@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-echo "$Drive"
-exit 0
-
 ##################################################
 # set hostname
 
@@ -27,7 +24,6 @@ Change shell to zsh
 
 chsh -s /bin/zsh
 
-
 ##################################################
 # set timezone and sync clock 
 
@@ -39,7 +35,7 @@ Set timezone and sync clock
 
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 
-hwclock --systohc --utc
+hwclock --systohc
 
 timedatectl set-ntp true
 
@@ -60,8 +56,7 @@ fr_FR.UTF-8 UTF-8
 it_IT.UTF-8 UTF-8
 ja_JP.UTF-8 UTF-8
 ko_KR.UTF-8 UTF-8
-pt_BR.UTF-8 UTF-8
-pt_PT.UTF-8 UTF-8" >> /etc/locale.gen
+pt_BR.UTF-8 UTF-8" >> /etc/locale.gen
 
 locale-gen
 
@@ -89,7 +84,7 @@ Set hosts file
 
 echo "127.0.0.1 localhost
 ::1 localhost
-127.0.1.1 $(computerName).localdomain $computerName" >> /etc/hosts
+127.0.1.1 ${computerName}.localdomain $computerName" >> /etc/hosts
 
 
 ##################################################
@@ -266,7 +261,7 @@ Enable ssd and networkmanager on systemctl
 ####################
 "
 
-systemctl enable NetworkManager.Service
+systemctl enable NetworkManager.service
 systemctl enable fstrim.timer
 systemctl enable sshd.service
 systemctl enable systemd-timesyncd.service
