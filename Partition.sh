@@ -3,7 +3,12 @@
 # set url for github download
 setupurl=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
 
+echo "
+????????????????????
+Increase font size
+####################
 
+setfont sun12x22
 
 echo "
 ????????????????????
@@ -26,6 +31,7 @@ timedatectl set-ntp true
 
 # capture user input
 # partition names
+
 echo "
 ????????????????????
 Which drive is root drive
@@ -33,7 +39,6 @@ Which drive is root drive
 "
 
 read Drive
-echo 'cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
 
 echo "
 ????????????????????
@@ -42,7 +47,6 @@ Which drive is boot drive
 "
 
 read Boot
-echo "mkfs.vfat -F32 /dev/$Boot"
 
 # script check
 #exit 0
@@ -54,7 +58,7 @@ Encrypt disk/partition
 ####################
 "
 
-alias cmd1='cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
+alias cmd1="cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
 
 
 until cmd1; do
@@ -68,7 +72,7 @@ Open root btrfs container
 ####################
 " 
  
-alias cmd2='cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system'
+alias cmd2='cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system"
 
 until cmd2; do
   cmd2
@@ -80,7 +84,6 @@ echo "
 Format both boot and root partition
 ####################
 " 
-
 
 mkfs.vfat -F32 /dev/$Boot
 mkfs.btrfs -L btrfs /dev/mapper/btrfs-system
@@ -161,5 +164,7 @@ echo "
 Boot into chroot
 ####################
 "
+
+export $Drive
 
 arch-chroot /mnt /bin/zsh shell.sh
