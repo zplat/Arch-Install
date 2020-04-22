@@ -35,7 +35,7 @@ Set timezone and sync clock
 ####################
 "
 
-ln -sf /usr/share/zoneinfo/Europe/Isle_of_Man /etc/localtime
+ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 
 hwclock --systohc --utc
 
