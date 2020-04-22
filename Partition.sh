@@ -7,6 +7,7 @@ echo "
 ????????????????????
 Increase font size
 ####################
+"
 
 setfont sun12x22
 
@@ -58,7 +59,7 @@ Encrypt disk/partition
 ####################
 "
 
-alias cmd1="cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
+alias cmd1="cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive"
 
 
 until cmd1; do
@@ -72,7 +73,7 @@ Open root btrfs container
 ####################
 " 
  
-alias cmd2='cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system"
+alias cmd2="cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system"
 
 until cmd2; do
   cmd2
