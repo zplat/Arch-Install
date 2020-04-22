@@ -4,24 +4,70 @@
 setupurl=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
 
 
+
+echo "
+????????????????????
+Sync for faster downloads
+####################
+"
+
+pacman -Syyy
+pacman -S reflector
+reflector -c "United Kingdom" -a 6 --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Syyy
+
+echo "
+????????????????????
+Network time protocol sync
+####################
+"
+
+timedatectl set-ntp true
+
 # capture user input
 # partition names
-echo "Which drive is root drive"
-read Drive
+echo "
+????????????????????
+Which drive is root drive
+####################
+"
 
-echo "Which drive is boot drive"
+read Drive
+echo 'cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
+
+echo "
+????????????????????
+Which drive is boot drive
+####################
+"
+
 read Boot
+echo "mkfs.vfat -F32 /dev/$Boot"
+
+# script check
+#exit 0
 
 # Encrypt disk/partition
-echo "Encrypt disk/partition"
+echo "
+????????????????????
+Encrypt disk/partition
+####################
+"
+
 alias cmd1='cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat /dev/$Drive'
+
 
 until cmd1; do
   cmd1
 done
 
 # open btrfs container 
-echo " Open root btrfs container"
+echo "
+????????????????????
+Open root btrfs container
+####################
+" 
+ 
 alias cmd2='cryptsetup --allow-discards --persistent open /dev/$Drive btrfs-system'
 
 until cmd2; do
@@ -29,12 +75,23 @@ until cmd2; do
 done
 
 # Format both boot and root partition
-echo "Format both boot and root partition"
+echo "
+????????????????????
+Format both boot and root partition
+####################
+" 
+
+
 mkfs.vfat -F32 /dev/$Boot
 mkfs.btrfs -L btrfs /dev/mapper/btrfs-system
 
 # Create btrfs subvolumes 
-echo "Creating btrfs subvolumes"
+echo "
+????????????????????
+Creating btrfs subvolumes
+####################
+"
+
 mount /dev/mapper/btrfs-system /mnt
 btrfs  subvolume create /mnt/root
 btrfs  subvolume create /mnt/home
@@ -48,7 +105,12 @@ mount -o subvol=home,ssd,compress=lzo,discard /dev/mapper/btrfs-system /mnt/home
 mount -o subvol=swap,ssd,discard /dev/mapper/btrfs-system /mnt/swap
 
 # create the swap
-echo "Creating the swap"
+echo "
+????????????????????
+Creating the swap
+####################
+"
+
 truncate -s 0 /mnt/swap/swapfile
 chattr +C /mnt/swap/swapfile
 
@@ -59,20 +121,45 @@ mkswap /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # mount boot volume
-echo "Mount boot volume"
+echo "
+????????????????????
+Mount boot volume
+####################
+"
+
 mount /dev/$Boot  /mnt/boot
 
 # installation 
-echo "Install packages"
+echo "
+????????????????????
+Install packages
+####################
+"
+
 pacstrap /mnt base base-devel git btrfs-progs efibootmgr zsh zsh-completions linux linux-firmware networkmanager
 
 # generate fstab
-echo "Update fstab"
+echo "
+????????????????????
+Update fstab
+####################
+"
+
 genfstab -U /mnt > /mnt/etc/fstab
 
 # log into chroot
-echo "Install next script"
+echo "
+????????????????????
+Install next script
+####################
+"
+
 curl --url $setupurl > /mnt/shell.sh 
 
-echo "Boot into chroot"
+echo "
+????????????????????
+Boot into chroot
+####################
+"
+
 arch-chroot /mnt /bin/zsh shell.sh
