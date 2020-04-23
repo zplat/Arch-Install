@@ -1,36 +1,44 @@
 #!/usr/bin/env sh
+# set constants
+echo "BOOTDRIVE=""
+ROOT_PASSWORD=""
+USER_NAME=""
+USER_PASSWORD=""
+TIMEZONE=""
+HOSTNAME=""
+" > data
+
+nvim data
+source data
 
 ##################################################
 # set hostname
 
 echo "
-????????????????????
-What is the hostname
-####################
+    ????????????????????
+    What is the hostname
+    ####################
 "
-
-read computerName
-echo "$computerName" > /etc/hostname
+echo "$HOSTNAME" > /etc/hostname
 
 
 ##################################################
 # change shell to zsh
 
 echo "
-????????????????????
-Change shell to zsh
-####################
+    ????????????????????
+    Change shell to zsh
+    ####################
 "
-
 chsh -s /bin/zsh
 
 ##################################################
 # set timezone and sync clock 
 
 echo "
-????????????????????
-Set timezone and sync clock
-####################
+    ????????????????????
+    Set timezone and sync clock
+    ####################
 "
 
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
@@ -41,13 +49,11 @@ timedatectl set-ntp true
 
 ##################################################
 # set locales aed update locales
-
 echo "
-????????????????????
-Set locales aed update locales
-####################
+    ????????????????????
+    Set locales aed update locales
+    ####################
 "
-
 echo "de_DE.UTF-8 UTF-8
 en_GB.UTF-8 UTF-8
 en_US.UTF-8 UTF-8
@@ -64,9 +70,9 @@ locale-gen
 # Set default locale
 
 echo "
-????????????????????
-Set default locale
-####################
+    ????????????????????
+    Set default locale
+    ####################
 "
 
 echo "LANG=en_US.UTF-8
@@ -75,11 +81,11 @@ LC_COLLATE=C" > /etc/locale.conf
 
 ##################################################
 # Set hosts file
-
+##################################################
 echo "
-????????????????????
-Set hosts file
-####################
+    ????????????????????
+    Set hosts file
+    ####################
 "
 
 echo "127.0.0.1 localhost
@@ -89,21 +95,21 @@ echo "127.0.0.1 localhost
 
 ##################################################
 # Set root password
+##################################################
 echo "
-????????????????????
-Set root password
-####################
+    ????????????????????
+    Set root password
+    ####################
 "
-
-passwd
+echo -en "$ROOT_PASSWORD\n$ROOT_PASSWORD" | passwd
 
 ##################################################
 # Enable repositories Multlib and AUR
-
+##################################################
 echo "
-????????????????????
-Enable repositories Multlib and AUR
-####################
+    ????????????????????
+    Enable repositories Multlib and AUR
+    ####################
 "
 
 # [Multilib]
@@ -119,32 +125,33 @@ pacman -Syu
 
 ##################################################
 # update mkinitcpio.conf
+##################################################
 echo "
-????????????????????
-Update mkinitcpio.conf
-####################
+    ????????????????????
+    Update mkinitcpio.conf
+    ####################
 "
 
 sed -i 's/^HOOKS.*$/HOOKS=(base systemd autodetect modconf block sd-encrypt btrfs resume filesystems keyboard fsck)/' /etc/mkinitcpio.conf
-
-#Update mkinitcpio
+##################################################
+# Update mkinitcpio
 # Generate the ramdisks using the presets
-
+##################################################
 echo "
-????????????????????
-Update mkinitcpio
-####################
+    ????????????????????
+    Update mkinitcpio
+    ####################
 "
 
 mkinitcpio -p linux
 
 ##################################################
 # systemd-boot
-
+##################################################
 echo "
-????????????????????
-Systemd-boot
-####################
+    ????????????????????
+    Systemd-boot
+    ####################
 "
 
 bootctl --path=/boot install
@@ -153,7 +160,7 @@ bootctl --path=/boot install
 DIRECTORY=/etc/pacman.d/hooks
 if [[ ! -f $DIRECTORY ]]
   then
-    mkkdir $DIRECTORY
+    mkkdir -p $DIRECTORY
   fi
  
 echo "[Trigger]
@@ -166,12 +173,13 @@ Description = Updating systemd-boot...
 When = PostTransaction
 Exec = /usr/bin/bootctl update" > /etc/pacman.d/hooks/100-systemd-boot.hook
 
+##################################################
 # create file arch.conf
-
+##################################################
 echo  "title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
-options rd.luks.name=$(blkid -s UUID -o value /dev/$Drive)=btrfs-system luks.options=discard root=/dev/mapper/btrfs-system rw rootflags=subvol=root quiet
+options rd.luks.name=$(blkid -s UUID -o value "$BOOTDRIVE")=btrfs-system luks.options=discard root=/dev/mapper/btrfs-system rw rootflags=subvol=root quiet
 " > /boot/loader/entries/arch.conf
 
 echo "timeout 3
@@ -179,33 +187,34 @@ default arch" > /boot/loader/loader.conf
 
 ##################################################
 # setup user account and password
-
+##################################################
 echo "
-????????????????????
-Setup user account and password
-####################
+    ????????????????????
+    Setup user account and password
+    ####################
 "
 
 echo "What is the user name?"
 read userName
 
 
-useradd -m -g users -s /bin/zsh $userName
+useradd -m -g users -s /bin/zsh $USER_NAME
 
 echo "
-????????????????????
-Set user password
-####################
+    ????????????????????
+    Set user password
+    ####################
 "
-passwd  $userName
+echo -en "$USER_PASSWORD\n$USER_PASSWORD" | passwd  $USER_NAME
 
 ##################################################
-# Install reflector, Update mirrors, install sytemctl script to update mirrors when mirrorlist changes
-
+# Install reflector, Update mirrors, install sytemctl 
+# script to update mirrors when mirrorlist changes
+##################################################
 echo "
-????????????????????
-Update mirrors
-####################
+    ????????????????????
+    Update mirrors
+    ####################
 "
 
 pacman -S reflector
@@ -226,11 +235,11 @@ reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /et
 
 ##################################################
 # install graphics
-
+##################################################
 echo "
-????????????????????
-Installing graphics
-####################
+    ????????????????????
+    Installing graphics
+    ####################
 "
 
 pacman -S xorg-server xorg-apps xorg-xinit amd-ucode linux-headers
@@ -239,26 +248,28 @@ pacman -S xorg-twm xterm xorg-xclock
 
 ##################################################
 # install ssh
-
+##################################################
 echo "
-????????????????????
-Install ssh
-####################
+    ????????????????????
+    Install ssd and remove
+    root access, assign to
+    use through ssh group.
+    ####################
 "
-
 pacman -S openssh
-
 groupadd -r ssh
 gpasswd -a $userName ssh
 echo 'AllowGroups ssh' >> /etc/ssh/sshd_config
 
 ##################################################
 # enable ssd and networkmanager on systemctl 
-
+##################################################
 echo "
-????????????????????
-Enable ssd and networkmanager on systemctl
-####################
+    ????????????????????
+    Enable ssd and 
+    networkmanager on 
+    systemctl
+    ####################
 "
 
 systemctl enable NetworkManager.service
