@@ -2,16 +2,13 @@
 
 # set url for github download
 SETUP_URL=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
-# set constants
 
-# create temporary file to hold the following data
-echo "ROOTDRIVE="/dev/sdax"
+# set constants
+# Update with right data
+ROOTDRIVE="/dev/sdax"
 BOOTDRIVE="/dev/sdax"
 DRIVE_PASSPHRASE=""
-" > data
 
-nano data   # fill in the blanks and save
-source data   # call file
 
 ##############################################################################################
 #  Set fontsize. Update mirrorlist. Update time sync.
@@ -62,7 +59,7 @@ Encrypt_Drive() {
   local Drive="$1"; shift
   local Pass="$y1"; shift
   
-  echo -en "$Pass" | cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$Drive"
+  echo -en "YES\n$Pass\n$Pass" | cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$Drive"
 }
 
 # open btrfs container 
@@ -75,7 +72,7 @@ Open_Root_Container() {
  local Drive="$1"; shift
  local Pass="$1"; shift
   
- echo -en "Pass" | cryptsetup --allow-discards --persistent open "$Drive" btrfs-system
+ echo -en "$Pass" | cryptsetup --allow-discards --persistent open "$Drive" btrfs-system
 }
 
 ##############################################################################################
@@ -210,17 +207,42 @@ Chroot() {
 ###############################################################################################
 
 
-Setup_Font
-Update_Mirrors
-Sync_Time
-Encrypt_Drive "ROOTDRIVE" "DRIVE_PASSPHRASE"
-Open_Root_Container "ROOTDRIVE" "DRIVE_PASSPHRASE"
-Format_Boot "BOOTDRIVE"
-Format_Root
-Create_BTRFS_Volumes
-Create_Swapfile
-Boot_Mount
-Installation
-Fstab_Setup
-Install_Script
-Chroot
+Array() {
+for item in ${array[*]}
+do
+    printf "   %s\n" $item
+    echo "Execute? y = yes, c = continue to next fun without execution 0 = exit script"
+    read ans
+    if [ -n ans -eq "y" ]; then
+      $item
+    elif [ -n ans -eq "c" ]; then
+      continue
+    else
+      exit 0;
+    fi
+done
+}
+
+Array1() {
+for item in ${array1[*]}
+do
+    printf "   %s\n" $item
+    echo "Execute? y = yes, c = continue to next fun without execution 0 = exit script"
+    read ans
+    if [ -n ans -eq "y" ]; then
+      $item
+    elif [ -n ans -eq "c" ]; then
+      continue
+    else
+      exit 0;
+    fi
+done
+}
+
+array=( Setup_Font Update_Mirrors Sync_Time )
+#Encrypt_Drive "ROOTDRIVE" "DRIVE_PASSPHRASE"
+#Open_Root_Container "ROOTDRIVE" "DRIVE_PASSPHRASE"
+#Format_Boot "BOOTDRIVE"
+array1=( Format_Root Create_BTRFS_Volumes Create_Swapfile Boot_Mount Installation Fstab_Setup Install_Script Chroot)
+Array
+Array1
