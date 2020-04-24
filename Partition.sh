@@ -7,8 +7,6 @@ SETUP_URL=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Sc
 # Update with right data
 ROOTDRIVE="/dev/sdax"
 BOOTDRIVE="/dev/sdax"
-DRIVE_PASSPHRASE=""
-
 
 ##############################################################################################
 #  Set fontsize. Update mirrorlist. Update time sync.
@@ -57,9 +55,7 @@ Encrypt_Drive() {
   ####################
   "
   local Drive="$1"; shift
-  local Pass="$1"; shift
-  
-  echo -en "YES\n$Pass\n$Pass" | cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$Drive"
+  cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$Drive"
 }
 
 # open btrfs container 
@@ -70,9 +66,7 @@ Open_Root_Container() {
   ####################
   " 
  local Drive="$1"; shift
- local Pass="$1"; shift
-  
- echo -en "$Pass" | cryptsetup --allow-discards --persistent open "$Drive" btrfs-system
+ cryptsetup --allow-discards --persistent open "$Drive" btrfs-system
 }
 
 ##############################################################################################
@@ -209,8 +203,8 @@ Chroot() {
 Setup_Font
 Update_Mirrors
 Sync_Time
-#Encrypt_Drive "ROOTDRIVE" "DRIVE_PASSPHRASE"
-#Open_Root_Container "ROOTDRIVE" "DRIVE_PASSPHRASE"
+#Encrypt_Drive "ROOTDRIVE"
+#Open_Root_Container "ROOTDRIVE"
 #Format_Boot "BOOTDRIVE"
 #Format_Root 
 #Create_BTRFS_Volumes 
