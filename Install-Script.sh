@@ -1,15 +1,14 @@
 #!/usr/bin/env sh
 # set constants
-echo "BOOTDRIVE=""
+ROOTDRIVE="/dev/sdax"
+BOOTDRIVE="/dev/sdax"
 ROOT_PASSWORD=""
 USER_NAME=""
 USER_PASSWORD=""
-TIMEZONE=""
+TIMEZONE="Europe/London"
 HOSTNAME=""
-" > data
-
-nvim data
-source data
+CONSOLE_KEYMAP="KEYMAP=us"
+CONSOLE_FONT="FONT=sun12x22"
 
 ##################################################
 # set hostname
@@ -41,7 +40,7 @@ echo "
     ####################
 "
 
-ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 
 hwclock --systohc
 
@@ -78,6 +77,8 @@ echo "
 echo "LANG=en_US.UTF-8
 LC_COLLATE=C" > /etc/locale.conf
 
+echo "$CONSOLE_KEYMAP" >> /etc/vconsole.conf
+echo "$CONSOLE_FONT" >> /etc/vconsole.conf
 
 ##################################################
 # Set hosts file
@@ -90,7 +91,7 @@ echo "
 
 echo "127.0.0.1 localhost
 ::1 localhost
-127.0.1.1 ${computerName}.localdomain $computerName" >> /etc/hosts
+127.0.1.1 ${HOSTNAME}.localdomain $HOSTNAME" >> /etc/hosts
 
 
 ##################################################
