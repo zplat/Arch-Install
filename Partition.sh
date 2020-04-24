@@ -57,7 +57,7 @@ Encrypt_Drive() {
   ####################
   "
   local Drive="$1"; shift
-  local Pass="$y1"; shift
+  local Pass="$1"; shift
   
   echo -en "YES\n$Pass\n$Pass" | cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$Drive"
 }
@@ -206,43 +206,17 @@ Chroot() {
 #  Install process
 ###############################################################################################
 
-
-Array() {
-for item in ${array[*]}
-do
-    printf "   %s\n" $item
-    echo "Execute? y = yes, c = continue to next fun without execution 0 = exit script"
-    read ans
-    if [ -n ans -eq "y" ]; then
-      $item
-    elif [ -n ans -eq "c" ]; then
-      continue
-    else
-      exit 0;
-    fi
-done
-}
-
-Array1() {
-for item in ${array1[*]}
-do
-    printf "   %s\n" $item
-    echo "Execute? y = yes, c = continue to next fun without execution 0 = exit script"
-    read ans
-    if [ -n ans -eq "y" ]; then
-      $item
-    elif [ -n ans -eq "c" ]; then
-      continue
-    else
-      exit 0;
-    fi
-done
-}
-
-array=( Setup_Font Update_Mirrors Sync_Time )
+Setup_Font
+Update_Mirrors
+Sync_Time
 #Encrypt_Drive "ROOTDRIVE" "DRIVE_PASSPHRASE"
 #Open_Root_Container "ROOTDRIVE" "DRIVE_PASSPHRASE"
 #Format_Boot "BOOTDRIVE"
-array1=( Format_Root Create_BTRFS_Volumes Create_Swapfile Boot_Mount Installation Fstab_Setup Install_Script Chroot)
-Array
-Array1
+#Format_Root 
+#Create_BTRFS_Volumes 
+#Create_Swapfile 
+#Boot_Mount
+#Installation
+#Fstab_Setup
+#Install_Script
+#Chroot
