@@ -206,11 +206,11 @@ Sync_Time
 #Encrypt_Drive "ROOTDRIVE"
 #Open_Root_Container "ROOTDRIVE"
 #Format_Boot "BOOTDRIVE"
-#Format_Root 
+#Format_Root "ROOTDRIVE" 
 #Create_BTRFS_Volumes 
 #Create_Swapfile 
-#Boot_Mount
+#Boot_Mount "BOOTDRIVE"
 #Installation
 #Fstab_Setup
-#Install_Script
+#Install_Script "SETUP_URL"
 #Chroot
