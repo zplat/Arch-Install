@@ -2,9 +2,7 @@
 # set constants
 ROOTDRIVE="/dev/sdax"
 BOOTDRIVE="/dev/sdax"
-ROOT_PASSWORD=""
 USER_NAME=""
-USER_PASSWORD=""
 TIMEZONE="Europe/London"
 HOSTNAME=""
 CONSOLE_KEYMAP="KEYMAP=us"
@@ -77,6 +75,7 @@ echo "
 echo "LANG=en_US.UTF-8
 LC_COLLATE=C" > /etc/locale.conf
 
+# set font for console
 echo "$CONSOLE_KEYMAP" >> /etc/vconsole.conf
 echo "$CONSOLE_FONT" >> /etc/vconsole.conf
 
@@ -102,7 +101,7 @@ echo "
     Set root password
     ####################
 "
-echo -en "$ROOT_PASSWORD\n$ROOT_PASSWORD" | passwd
+passwd
 
 ##################################################
 # Enable repositories Multlib and AUR
@@ -154,16 +153,15 @@ echo "
     Systemd-boot
     ####################
 "
-
+pwd=$PWD
 bootctl --path=/boot install
 
-
 DIRECTORY=/etc/pacman.d/hooks
-if [[ ! -f $DIRECTORY ]]
+if [[ ! -d $DIRECTORY ]]
   then
     mkkdir -p $DIRECTORY
   fi
- 
+
 echo "[Trigger]
 Type = Package
 Operation = Upgrade
@@ -180,7 +178,7 @@ Exec = /usr/bin/bootctl update" > /etc/pacman.d/hooks/100-systemd-boot.hook
 echo  "title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
-options rd.luks.name=$(blkid -s UUID -o value "$BOOTDRIVE")=btrfs-system luks.options=discard root=/dev/mapper/btrfs-system rw rootflags=subvol=root quiet
+options rd.luks.name=$(blkid -s UUID -o value $ROOTDRIVE)=btrfs-system luks.options=discard root=/dev/mapper/btrfs-system rw rootflags=subvol=root quiet
 " > /boot/loader/entries/arch.conf
 
 echo "timeout 3
@@ -206,7 +204,7 @@ echo "
     Set user password
     ####################
 "
-echo -en "$USER_PASSWORD\n$USER_PASSWORD" | passwd  $USER_NAME
+passwd  $USER_NAME
 
 ##################################################
 # Install reflector, Update mirrors, install sytemctl 
@@ -243,8 +241,8 @@ echo "
     ####################
 "
 
-pacman -S xorg-server xorg-apps xorg-xinit amd-ucode linux-headers
-pacman -S mesa xf86-video-amdgpu vulkan-radeon lib32-mesa
+pacman -S xorg-server xorg-apps xorg-xinit amd-ucode linux-headers x86-input-synaptics
+pacman -S mesa xf86-video-amdgpu vulkan-radeon lib32-mesa lib32-vulkan-radeon
 pacman -S xorg-twm xterm xorg-xclock
 
 ##################################################
