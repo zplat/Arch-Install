@@ -1,10 +1,9 @@
-#!/usr/bin/env sh
-
-# set url for github download
-SETUP_URL=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
+#!/usr/bin/env bash
 
 # set constants
 # Update with right data
+# set url for github download
+SETUP_URL=https://raw.githubusercontent.com/zplat/Arch-Install/master/Install-Script.sh
 ROOTDRIVE="/dev/sdax"
 BOOTDRIVE="/dev/sdax"
 
@@ -203,14 +202,14 @@ Chroot() {
 Setup_Font
 Update_Mirrors
 Sync_Time
-#Encrypt_Drive "ROOTDRIVE"
-#Open_Root_Container "ROOTDRIVE"
-#Format_Boot "BOOTDRIVE"
-#Format_Root "ROOTDRIVE" 
-#Create_BTRFS_Volumes 
-#Create_Swapfile 
-#Boot_Mount "BOOTDRIVE"
-#Installation
-#Fstab_Setup
-#Install_Script "SETUP_URL"
-#Chroot
+Encrypt_Drive "$ROOTDRIVE"
+Open_Root_Container "$ROOTDRIVE"
+Format_Boot "$BOOTDRIVE"
+Format_Root "$ROOTDRIVE" 
+Create_BTRFS_Volumes 
+Create_Swapfile 
+Boot_Mount "$BOOTDRIVE"
+Installation
+Fstab_Setup
+Install_Script "$SETUP_URL"
+Chroot
