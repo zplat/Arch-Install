@@ -20,7 +20,11 @@ https://www.reddit.com/r/archlinux/comments/7np36m/detached_luks_header_full_dis
 
 Helpful YouTube sites (Just some of the many good ones out there). 
 Linux centric
+
 Luke Smith https://www.youtube.com/channel/UC2eYFnH61tmytImy1mTYvhA
+
 DistroTube https://www.youtube.com/channel/UCVls1GmFKf6WlTraIb_IaJg
+
 Brodie Robertson https://www.youtube.com/user/OmegaDungeon
+
 gotbletu https://www.youtube.com/channel/UCkf4VIqu3Acnfzuk3kRIFwA
