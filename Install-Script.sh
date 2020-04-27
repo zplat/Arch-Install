@@ -231,6 +231,27 @@ Exec = /bin/sh -c "reflector --country 'United Kingdom' --latest 10 --age 24 --s
 
 reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /etc/pacman.d/mirrorlist; rm -f /etc/pacman.d/mirrorlist.pacnew
 
+##############################
+#
+##############################
+echo "
+    ????????????????????
+    Update list of installed 
+    packages
+    ####################
+"
+echo "[Trigger]
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+When = PostTransaction
+Exec = /bin/sh -c '/usr/bin/pacman -Qqn $HOME/.nativepkglist.txt
+Exec = /bin/sh -c '/usr/bin/pacman -Qqm $HOME/.aurpkglist.txt
+Exec = /usr/bin/bash -c "/usr/bin/pacman -Qtd $HOME/.orphanpkglist.txt || /usr/bin/echo '=> None found.'"" > /etc/pacman.d/hooks/pkglist.hook 
+
 
 ##################################################
 # install graphics
@@ -275,3 +296,5 @@ systemctl enable NetworkManager.service
 systemctl enable fstrim.timer
 systemctl enable sshd.service
 systemctl enable systemd-timesyncd.service
+
+shred -u shell.sh
