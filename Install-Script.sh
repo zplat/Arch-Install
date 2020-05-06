@@ -7,6 +7,7 @@ TIMEZONE="Europe/London"
 HOSTNAME=""
 CONSOLE_KEYMAP="KEYMAP=us"
 CONSOLE_FONT="FONT=sun12x22"
+HOME="/home/$USER_NAME"
 
 ##################################################
 # set hostname
@@ -30,7 +31,7 @@ echo "
 chsh -s /bin/zsh
 
 ##################################################
-# set timezone and sync clock 
+# set timezone and sync clock
 
 echo "
     ????????????????????
@@ -147,6 +148,7 @@ mkinitcpio -p linux
 
 ##################################################
 # systemd-boot
+# Enable update
 ##################################################
 echo "
     ????????????????????
@@ -174,6 +176,8 @@ Exec = /usr/bin/bootctl update" > /etc/pacman.d/hooks/100-systemd-boot.hook
 
 ##################################################
 # create file arch.conf
+# setup arch.conf
+# setup loader.conf
 ##################################################
 echo  "title Arch Linux
 linux /vmlinuz-linux
@@ -207,7 +211,7 @@ echo "
 passwd  $USER_NAME
 
 ##################################################
-# Install reflector, Update mirrors, install sytemctl 
+# Install reflector, Update mirrors, install sytemctl
 # script to update mirrors when mirrorlist changes
 ##################################################
 echo "
@@ -227,19 +231,24 @@ Target = pacman-mirrorlist
 Description = Updating pacman-mirrorlist with reflector and removing pacnew...
 When = PostTransaction
 Depends = reflector
-Exec = /bin/sh -c "reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /etc/pacman.d/mirrorlist; rm -f /etc/pacman.d/mirrorlist.pacnew"' > /etc/pacman.d/hooks/mirrorupgrade.hook 
+Exec = /bin/sh -c "reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /etc/pacman.d/mirrorlist; rm -f /etc/pacman.d/mirrorlist.pacnew"' > /etc/pacman.d/hooks/mirrorupgrade.hook
 
 reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /etc/pacman.d/mirrorlist; rm -f /etc/pacman.d/mirrorlist.pacnew
 
 ##############################
-#
+# List all packages
+# Create a file in $USER
+# .config/Packages
+# folder.
 ##############################
 echo "
     ????????????????????
-    Update list of installed 
+    Update list of installed
     packages
     ####################
+
 "
+# list of Standard programs
 echo "[Trigger]
 Operation = Install
 Operation = Remove
@@ -248,10 +257,56 @@ Target = *
 
 [Action]
 When = PostTransaction
-Exec = /bin/sh -c '/usr/bin/pacman -Qqn $HOME/.nativepkglist.txt
-Exec = /bin/sh -c '/usr/bin/pacman -Qqm $HOME/.aurpkglist.txt
-Exec = /usr/bin/bash -c "/usr/bin/pacman -Qtd $HOME/.orphanpkglist.txt || /usr/bin/echo '=> None found.'"" > /etc/pacman.d/hooks/pkglist.hook 
+Exec = /bin/sh -c '/usr/bin/pacman -Qqn $HOME/.config/Packages/.nativepkglist.txt'
+"
 
+# list of AUR programs
+
+echo "[Trigger]
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+When = PostTransaction
+Exec = /bin/sh -c '/usr/bin/pacman -Qqm $HOME/.config/Packages/.aurpkglist.txt'
+
+"
+
+# list of orphan apps to remove
+echo "[Trigger]
+
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+When = PostTransaction
+Exec = /usr/bin/bash -c "/usr/bin/pacman -Qtd $HOME/.config/Packages/.orphanpkglist.txt || /usr/bin/echo '=> None found.'"" > /etc/pacman.d/hooks/pkglist.hook
+"
+
+
+##############################
+#
+##############################
+echo "
+    ????????????????????
+     Install Wally for Ergodox-ez
+     Updates firmware
+    ####################
+"
+echo "# Teensy rules for the Ergodox EZ Original / Shine / Glow
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789A]?", ENV{MTP_NO_PROBE}="1"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789ABCD]?", MODE:="0666"
+KERNEL=="ttyACM*", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", MODE:="0666"
+
+# STM32 rules for the Planck EZ Standard / Glow
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", \
+    MODE:="0666", \
+    SYMLINK+="stm32_dfu" " >> /etc/udev/rules.d/50-wally.rules
 
 ##################################################
 # install graphics
@@ -282,12 +337,12 @@ gpasswd -a $userName ssh
 echo 'AllowGroups ssh' >> /etc/ssh/sshd_config
 
 ##################################################
-# enable ssd and networkmanager on systemctl 
+# enable ssd and networkmanager on systemctl
 ##################################################
 echo "
     ????????????????????
-    Enable ssd and 
-    networkmanager on 
+    Enable ssd and
+    networkmanager on
     systemctl
     ####################
 "
