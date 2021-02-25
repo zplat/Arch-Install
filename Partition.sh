@@ -53,8 +53,7 @@ Encrypt_Drive() {
   Encrypt disk/partition
   ####################
   "
-  local Drive="$1"; shift
-  cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$Drive"
+  cryptsetup --hash=sha512 --cipher=twofish-xts-plain64 --key-size=512 -i 30000 luksFormat "$ROOTDRIVE"
 }
 
 # open btrfs container 
@@ -64,8 +63,7 @@ Open_Root_Container() {
   Open root btrfs container
   ####################
   " 
- local Drive="$1"; shift
- cryptsetup --allow-discards --persistent open "$Drive" btrfs-system
+ cryptsetup --allow-discards --persistent open "$ROOTDRIVE" btrfs-system
 }
 
 ##############################################################################################
@@ -79,8 +77,7 @@ Format_Boot() {
     Format boot partition
     ####################
   " 
-  local Drive="$1"; shift
-  mkfs.vfat -F32 "$Drive"
+  mkfs.vfat -F32 "$BOOTDRIVE"
 }
 
 # Format root partition
@@ -102,13 +99,17 @@ Create_BTRFS_Volumes() {
     ####################
   "
   mount /dev/mapper/btrfs-system /mnt
-  btrfs  subvolume create /mnt/root
-  btrfs  subvolume create /mnt/home
-  btrfs  subvolume create /mnt/swap
+  btrfs  subvolume create /mnt/@
+  btrfs  subvolume create /mnt/@home
+  btrfs  subvolume create /mnt/@var_log
+  btrfs  subvolume create /mnt/@swap
+  btrfs  subvolume create /mnt/@snapshots
   umount /mnt
-  mount -o subvol=root,ssd,compress=lzo,discard /dev/mapper/btrfs-system /mnt
+  mount -o subvol=@,ssd,,noatime,space_cache=v2,compress=lzo,discard /dev/mapper/btrfs-system /mnt
   mkdir /mnt/{boot,home,swap}
-  mount -o subvol=home,ssd,compress=lzo,discard /dev/mapper/btrfs-system /mnt/home
+  mount -o subvol=@home,ssd,noatime,space_cache=v2,compress=lzo,discard /dev/mapper/btrfs-system /mnt/home
+  mount -o subvol=@var_log,ssd,noatime,space_cache=v2,compress=lzo,discard /dev/mapper/btrfs-system /mnt/var_log
+  mount -o subvol=@snapshot,noatime,space_cache=v2,ssd,compress=lzo,discard /dev/mapper/btrfs-system /mnt/.snapshots
   mount -o subvol=swap,ssd,discard /dev/mapper/btrfs-system /mnt/swap
 }
 
@@ -122,7 +123,7 @@ Create_Swapfile() {
     Creating the swap
     ####################
   "
-  truncate -s 0 /mnt/swap/swapfile
+  truncate -s 0 /mnt/@swap/swapfile
   chattr +C /mnt/swap/swapfile
   dd if=/dev/zero of=/mnt/swap/swapfile bs=1M count=8192 status=progress
   chmod 600  /mnt/swap/swapfile
