@@ -11,6 +11,7 @@ HOME="/home/$USER_NAME"
 
 ##################################################
 # set hostname
+##################################################
 
 echo "
     ????????????????????
@@ -22,6 +23,7 @@ echo "$HOSTNAME" > /etc/hostname
 
 ##################################################
 # change shell to zsh
+##################################################
 
 echo "
     ????????????????????
@@ -32,6 +34,7 @@ chsh -s /bin/zsh
 
 ##################################################
 # set timezone and sync clock
+##################################################
 
 echo "
     ????????????????????
@@ -47,6 +50,8 @@ timedatectl set-ntp true
 
 ##################################################
 # set locales aed update locales
+##################################################
+
 echo "
     ????????????????????
     Set locales aed update locales
@@ -66,6 +71,7 @@ locale-gen
 
 ##################################################
 # Set default locale
+##################################################
 
 echo "
     ????????????????????
@@ -83,6 +89,7 @@ echo "$CONSOLE_FONT" >> /etc/vconsole.conf
 ##################################################
 # Set hosts file
 ##################################################
+
 echo "
     ????????????????????
     Set hosts file
@@ -134,6 +141,7 @@ echo "
 "
 
 sed -i 's/^HOOKS.*$/HOOKS=(base systemd autodetect modconf block sd-encrypt btrfs resume filesystems keyboard fsck)/' /etc/mkinitcpio.conf
+
 ##################################################
 # Update mkinitcpio
 # Generate the ramdisks using the presets
@@ -158,6 +166,11 @@ echo "
 pwd=$PWD
 bootctl --path=/boot install
 
+##################################################
+# Pacman
+# Create hooks folder
+# Enable update of bootloader
+##################################################
 DIRECTORY=/etc/pacman.d/hooks
 if [[ ! -d $DIRECTORY ]]
   then
@@ -216,24 +229,26 @@ passwd  $USER_NAME
 ##################################################
 echo "
     ????????????????????
-    Update mirrors
+    Update mirrors 
+    Install reflector
+    Automate process
     ####################
 "
 
 pacman -S reflector
 
-echo '[Trigger]
-Operation = Upgrade
-Type = Package
-Target = pacman-mirrorlist
+echo "--country 'United Kingdom' 
+--latest 10 
+--age 24 
+--sort rate 
+"
+>> /etc/xdg/reflector/reflector.conf
 
-[Action]
-Description = Updating pacman-mirrorlist with reflector and removing pacnew...
-When = PostTransaction
-Depends = reflector
-Exec = /bin/sh -c "reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /etc/pacman.d/mirrorlist; rm -f /etc/pacman.d/mirrorlist.pacnew"' > /etc/pacman.d/hooks/mirrorupgrade.hook
-
-reflector --country 'United Kingdom' --latest 10 --age 24 --sort rate --save /etc/pacman.d/mirrorlist; rm -f /etc/pacman.d/mirrorlist.pacnew
+echo "
+    ????????????????????
+    Update mirrors
+    ####################
+"
 
 ##############################
 # List all packages
@@ -258,7 +273,7 @@ Target = *
 [Action]
 When = PostTransaction
 Exec = /bin/sh -c '/usr/bin/pacman -Qqn $HOME/.config/Packages/.nativepkglist.txt'
-"
+" > /etc/pacman.d/hooks/pkgOfficial.hook
 
 # list of AUR programs
 
@@ -272,7 +287,7 @@ Target = *
 When = PostTransaction
 Exec = /bin/sh -c '/usr/bin/pacman -Qqm $HOME/.config/Packages/.aurpkglist.txt'
 
-"
+" > /etc/pacman.d/hooks/pkgAUR.hook
 
 # list of orphan apps to remove
 echo "[Trigger]
@@ -285,28 +300,12 @@ Target = *
 [Action]
 When = PostTransaction
 Exec = /usr/bin/bash -c "/usr/bin/pacman -Qtd $HOME/.config/Packages/.orphanpkglist.txt || /usr/bin/echo '=> None found.'"" > /etc/pacman.d/hooks/pkglist.hook
-"
+" > /etc/pacman.d/hooks/pkgClean.hook
 
 
 ##############################
 #
 ##############################
-echo "
-    ????????????????????
-     Install Wally for Ergodox-ez
-     Updates firmware
-    ####################
-"
-echo "# Teensy rules for the Ergodox EZ Original / Shine / Glow
-ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", ENV{ID_MM_DEVICE_IGNORE}="1"
-ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789A]?", ENV{MTP_NO_PROBE}="1"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789ABCD]?", MODE:="0666"
-KERNEL=="ttyACM*", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", MODE:="0666"
-
-# STM32 rules for the Planck EZ Standard / Glow
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", \
-    MODE:="0666", \
-    SYMLINK+="stm32_dfu" " >> /etc/udev/rules.d/50-wally.rules
 
 ##################################################
 # install graphics
@@ -351,5 +350,7 @@ systemctl enable NetworkManager.service
 systemctl enable fstrim.timer
 systemctl enable sshd.service
 systemctl enable systemd-timesyncd.service
+systemctl enable reflector.timer
+systemctl start reflector.service
 
 shred -u shell.sh
